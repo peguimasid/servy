@@ -2,13 +2,21 @@ defmodule Servy.Handler do
   def handle(request) do
     request
     |> parse()
-    |> route()
-    |> format_response()
+
+    # |> route()
+    # |> format_response()
   end
 
-  def parse(_request) do
+  def parse(request) do
     # TODO: Parse the request string into a map:
-    _conv = %{method: "GET", path: "/wildthings", resp_body: ""}
+
+    [method, path, _version] =
+      request
+      |> String.split("\n")
+      |> List.first()
+      |> String.split(" ")
+
+    %{method: method, path: path, resp_body: ""}
   end
 
   def route(_conv) do
