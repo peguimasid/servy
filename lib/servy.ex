@@ -3,5 +3,3 @@ defmodule Servy do
     :world
   end
 end
-
-IO.puts(Servy.hello())
