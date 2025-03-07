@@ -27,6 +27,10 @@ defmodule Servy.Handler do
     %{conv | resp_body: "Teddy, Smokey, Paddington"}
   end
 
+  def route(%{path: path} = conv) do
+    %{conv | resp_body: "No #{path} here!"}
+  end
+
   def format_response(conv) do
     """
     HTTP/1.1 200 OK
@@ -52,6 +56,18 @@ IO.inspect(response)
 
 request = """
 GET /bears HTTP/1.1
+Host: example.com
+User-Agent: ExampleBrowser/1.0
+Accept: */*
+
+"""
+
+response = Servy.Handler.handle(request)
+
+IO.inspect(response)
+
+request = """
+GET /bigfoot HTTP/1.1
 Host: example.com
 User-Agent: ExampleBrowser/1.0
 Accept: */*
