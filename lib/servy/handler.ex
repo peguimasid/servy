@@ -8,8 +8,6 @@ defmodule Servy.Handler do
   end
 
   def parse(request) do
-    # TODO: Parse the request string into a map:
-
     [method, path, _version] =
       request
       |> String.split("\n")
