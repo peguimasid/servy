@@ -36,6 +36,10 @@ defmodule Servy.Handler do
     %{conv | status: 200, resp_body: "Bear #{id}"}
   end
 
+  def route(%Conv{method: "POST", path: "/bears", params: params} = conv) do
+    %{conv | status: 201, resp_body: "Created #{params["type"]} bear named #{params["name"]}"}
+  end
+
   def route(%Conv{method: "DELETE", path: "/bears/" <> id} = conv) do
     %{conv | status: 403, resp_body: "Nah leave bear #{id} alone"}
   end
@@ -47,8 +51,8 @@ defmodule Servy.Handler do
     |> handle_file(conv)
   end
 
-  def route(%Conv{path: path} = conv) do
-    %{conv | status: 404, resp_body: "Route '#{path}' not found."}
+  def route(%Conv{path: path, method: method} = conv) do
+    %{conv | status: 404, resp_body: "Route #{method} '#{path}' not found."}
   end
 
   def format_response(%Conv{} = conv) do
@@ -164,6 +168,21 @@ Host: example.com
 User-Agent: ExampleBrowser/1.0
 Accept: */*
 
+"""
+
+response = Servy.Handler.handle(request)
+
+IO.inspect(response)
+
+request = """
+POST /bears HTTP/1.1
+Host: example.com
+User-Agent: ExampleBrowser/1.0
+Accept: */*
+Content-Type: application/x-www-form-urlencoded
+Content-Length: 21
+
+name=Baloo&type=Brown
 """
 
 response = Servy.Handler.handle(request)
