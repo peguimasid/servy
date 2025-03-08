@@ -2,7 +2,7 @@ defmodule Servy.Parser do
   alias Servy.Conv
 
   def parse(request) do
-    [top, params_string] = String.split(request, "\n\n")
+    [top, params_string] = String.split(request, "\n\n", parts: 2)
 
     [request_line | _header_lines] = String.split(top, "\n")
 
