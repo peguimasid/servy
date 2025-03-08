@@ -25,4 +25,8 @@ defmodule Servy.Controllers.BearController do
   def create(conv, %{"type" => type, "name" => name}) do
     %{conv | status: 201, resp_body: "Created #{type} bear named #{name}"}
   end
+
+  def delete(conv, %{"id" => id}) do
+    %{conv | status: 403, resp_body: "Nah leave bear #{id} alone"}
+  end
 end
