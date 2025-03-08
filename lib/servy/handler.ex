@@ -5,7 +5,6 @@ defmodule Servy.Handler do
     |> rewrite_path()
     |> log()
     |> route()
-    |> emojify()
     |> track()
     |> format_response()
   end
@@ -53,8 +52,12 @@ defmodule Servy.Handler do
     %{conv | status: 403, resp_body: "Nah leave bear #{id} alone"}
   end
 
+  def route(%{method: "GET", path: "/about"} = conv) do
+    %{conv | status: 200, resp_body: "contents of file"}
+  end
+
   def route(%{path: path} = conv) do
-    %{conv | status: 404, resp_body: "No #{path} here!"}
+    %{conv | status: 404, resp_body: "Route '#{path}' not found."}
   end
 
   def track(%{status: 404, path: path} = conv) do
@@ -62,12 +65,6 @@ defmodule Servy.Handler do
   end
 
   def track(conv), do: conv
-
-  def emojify(%{status: 200, resp_body: resp_body} = conv) do
-    %{conv | status: 200, resp_body: "🤘🏼 #{resp_body}"}
-  end
-
-  def emojify(conv), do: conv
 
   def format_response(conv) do
     """
@@ -166,6 +163,18 @@ IO.inspect(response)
 
 request = """
 GET /bears?id=1 HTTP/1.1
+Host: example.com
+User-Agent: ExampleBrowser/1.0
+Accept: */*
+
+"""
+
+response = Servy.Handler.handle(request)
+
+IO.inspect(response)
+
+request = """
+GET /about HTTP/1.1
 Host: example.com
 User-Agent: ExampleBrowser/1.0
 Accept: */*
