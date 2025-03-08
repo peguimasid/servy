@@ -1,6 +1,9 @@
 defmodule Servy.Handler do
   @pages_path Path.expand("../../pages", __DIR__)
 
+  import Servy.Plugins, only: [rewrite_path: 1, log: 1, track: 1]
+  import Servy.Parser, only: [parse: 1]
+
   def handle(request) do
     request
     |> parse()
@@ -9,33 +12,6 @@ defmodule Servy.Handler do
     |> route()
     |> track()
     |> format_response()
-  end
-
-  def rewrite_path(%{path: "/bears?id=" <> id} = conv) do
-    %{conv | path: "/bears/#{id}"}
-  end
-
-  def rewrite_path(%{path: "/wildlife"} = conv) do
-    %{conv | path: "/wildthings"}
-  end
-
-  def rewrite_path(conv), do: conv
-
-  def log(conv), do: IO.inspect(conv, label: "Request after parse")
-
-  def parse(request) do
-    [method, path, _version] =
-      request
-      |> String.split("\n")
-      |> List.first()
-      |> String.split(" ")
-
-    %{
-      method: method,
-      path: path,
-      status: nil,
-      resp_body: ""
-    }
   end
 
   def route(%{method: "GET", path: "/wildthings"} = conv) do
@@ -83,12 +59,6 @@ defmodule Servy.Handler do
   def handle_file({:error, reason}, conv) do
     %{conv | status: 500, resp_body: "File error: #{reason}"}
   end
-
-  def track(%{status: 404, path: path} = conv) do
-    IO.inspect(conv, label: "Error in call for #{path}")
-  end
-
-  def track(conv), do: conv
 
   def format_response(conv) do
     """
