@@ -2,7 +2,11 @@ defmodule Servy.Plugins do
   alias Servy.Conv
 
   def track(%Conv{status: 404, path: path} = conv) do
-    IO.inspect(conv, label: "Error in call for #{path}")
+    if Mix.env() != :test do
+      IO.inspect(conv, label: "Error in call for #{path}")
+    end
+
+    conv
   end
 
   def track(%Conv{} = conv), do: conv
@@ -17,5 +21,11 @@ defmodule Servy.Plugins do
 
   def rewrite_path(%Conv{} = conv), do: conv
 
-  def log(%Conv{} = conv), do: IO.inspect(conv, label: "Request after parse")
+  def log(%Conv{} = conv) do
+    if Mix.env() == :dev do
+      IO.inspect(conv, label: "Request after parse")
+    end
+
+    conv
+  end
 end
