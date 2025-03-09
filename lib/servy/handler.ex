@@ -5,6 +5,7 @@ defmodule Servy.Handler do
   import Servy.Parser, only: [parse: 1]
   import Servy.FileHandler, only: [handle_file: 2]
 
+  alias Servy.Api
   alias Servy.Conv
   alias Servy.Controllers.BearController
 
@@ -47,6 +48,10 @@ defmodule Servy.Handler do
     BearController.delete(conv, params)
   end
 
+  def route(%Conv{method: "GET", path: "/api/bears"} = conv) do
+    Api.BearController.index(conv)
+  end
+
   def route(%Conv{method: "GET", path: "/about"} = conv) do
     @pages_path
     |> Path.join("about.html")
@@ -61,7 +66,7 @@ defmodule Servy.Handler do
   def format_response(%Conv{} = conv) do
     """
     HTTP/1.1 #{Conv.full_status(conv)}\r
-    Content-Type: text/html\r
+    Content-Type: #{conv.resp_content_type}\r
     Content-Length: #{byte_size(conv.resp_body)}\r
     \r
     #{conv.resp_body}
