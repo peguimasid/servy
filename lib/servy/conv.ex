@@ -3,7 +3,7 @@ defmodule Servy.Conv do
             path: "",
             params: %{},
             headers: %{},
-            resp_headers: %{"Content-Type" => "text/html"},
+            resp_headers: %{"Content-Type" => "text/html", "Content-Length" => 0},
             resp_body: "",
             status: nil
 
@@ -13,6 +13,11 @@ defmodule Servy.Conv do
 
   def put_resp_content_type(%Servy.Conv{} = conv, resp_content_type) do
     headers = Map.put(conv.resp_headers, "Content-Type", resp_content_type)
+    %{conv | resp_headers: headers}
+  end
+
+  def put_content_length(%Servy.Conv{} = conv) do
+    headers = Map.put(conv.resp_headers, "Content-Length", byte_size(conv.resp_body))
     %{conv | resp_headers: headers}
   end
 
