@@ -21,6 +21,14 @@ defmodule Servy.Conv do
     %{conv | resp_headers: headers}
   end
 
+  def format_response_headers(%Servy.Conv{resp_headers: resp_headers}) do
+    resp_headers
+    |> Enum.sort()
+    |> Enum.reverse()
+    |> Enum.map(fn {key, value} -> "#{key}: #{value}\r" end)
+    |> Enum.join("\n")
+  end
+
   defp status_reason(code) do
     case code do
       200 -> "OK"
