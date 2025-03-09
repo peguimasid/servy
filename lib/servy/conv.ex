@@ -11,6 +11,11 @@ defmodule Servy.Conv do
     "#{status} #{status_reason(status)}"
   end
 
+  def put_resp_content_type(%Servy.Conv{} = conv, resp_content_type) do
+    headers = Map.put(conv.resp_headers, "Content-Type", resp_content_type)
+    %{conv | resp_headers: headers}
+  end
+
   defp status_reason(code) do
     case code do
       200 -> "OK"
