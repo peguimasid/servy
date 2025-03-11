@@ -21,6 +21,33 @@ defmodule Servy.Handler do
     |> format_response()
   end
 
+  def route(%Conv{method: "GET", path: "/snapshots"} = conv) do
+    parent_pid = self()
+
+    spawn(fn -> send(parent_pid, {:result, Servy.VideoCam.get_snapshot("cam-1")}) end)
+    spawn(fn -> send(parent_pid, {:result, Servy.VideoCam.get_snapshot("cam-2")}) end)
+    spawn(fn -> send(parent_pid, {:result, Servy.VideoCam.get_snapshot("cam-3")}) end)
+
+    snap1 =
+      receive do
+        {:result, filename} -> filename
+      end
+
+    snap2 =
+      receive do
+        {:result, filename} -> filename
+      end
+
+    snap3 =
+      receive do
+        {:result, filename} -> filename
+      end
+
+    snapshots = [snap1, snap2, snap3]
+
+    %{conv | status: 200, resp_body: inspect(snapshots)}
+  end
+
   def route(%Conv{method: "GET", path: "/kaboom"}) do
     raise "Kaboom!"
   end
