@@ -7,6 +7,7 @@ defmodule Servy.Handler do
   import Servy.Conv, only: [put_content_length: 1]
   import Servy.View, only: [render: 3]
 
+  alias Servy.FourOhFourCounter
   alias Servy.Tracker
   alias Servy.VideoCam
   alias Servy.Api
@@ -48,6 +49,11 @@ defmodule Servy.Handler do
 
   def route(%Conv{method: "GET", path: "/kaboom"}) do
     raise "Kaboom!"
+  end
+
+  def route(%Conv{method: "GET", path: "/404s"} = conv) do
+    counts = FourOhFourCounter.get_counts()
+    %{conv | status: 200, resp_body: inspect(counts)}
   end
 
   def route(%Conv{method: "GET", path: "/hibernate/" <> time} = conv) do

@@ -1,9 +1,11 @@
 defmodule Servy.Plugins do
+  alias Servy.FourOhFourCounter
   alias Servy.Conv
 
   def track(%Conv{status: 404, path: path} = conv) do
     if Mix.env() != :test do
       IO.inspect(conv, label: "Error in call for #{path}")
+      FourOhFourCounter.bump_count(path)
     end
 
     conv
