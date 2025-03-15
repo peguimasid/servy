@@ -1,10 +1,10 @@
 defmodule Servy.PledgeServer do
-  @name :pledge_server
+  @name __MODULE__
 
   # Client interface functions
 
-  def start do
-    pid = spawn(__MODULE__, :listen_loop, [[]])
+  def start(initial_state \\ []) do
+    pid = spawn(__MODULE__, :listen_loop, [initial_state])
     Process.register(pid, @name)
     pid
   end
@@ -82,3 +82,8 @@ end
 # IO.inspect(PledgeServer.total_pledged())
 
 # IO.inspect(Process.info(pid, :messages))
+
+# {:ok, agent} = Agent.start(fn -> [] end)
+# Agent.update(agent, fn(state) -> [ {"larry", 10} | state ] end)
+# Agent.update(agent, fn(state) -> [ {"moe", 20} | state ] end)
+# Agent.get(agent, fn(state) -> state end)
