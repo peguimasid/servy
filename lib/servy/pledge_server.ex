@@ -1,25 +1,12 @@
 defmodule Servy.PledgeServer do
   @name :pledge_server
 
+  # Client interface functions
+
   def start do
     pid = spawn(__MODULE__, :listen_loop, [[]])
     Process.register(pid, @name)
     pid
-  end
-
-  def listen_loop(state) do
-    receive do
-      {sender, :create_pledge, name, amount} ->
-        {:ok, id} = send_pledge_to_service(name, amount)
-        most_recent_pledges = Enum.take(state, 2)
-        new_state = [{name, amount} | most_recent_pledges]
-        send(sender, {:response, id})
-        listen_loop(new_state)
-
-      {sender, :recent_pledges} ->
-        send(sender, {:response, state})
-        listen_loop(state)
-    end
   end
 
   def create_pledge(name, amount) do
@@ -38,6 +25,41 @@ defmodule Servy.PledgeServer do
     end
   end
 
+  def total_pledged() do
+    send(@name, {self(), :total_pledged})
+
+    receive do
+      {:response, total} -> total
+    end
+  end
+
+  # Server
+
+  def listen_loop(state) do
+    receive do
+      {sender, :create_pledge, name, amount} ->
+        {:ok, id} = send_pledge_to_service(name, amount)
+        most_recent_pledges = Enum.take(state, 2)
+        new_state = [{name, amount} | most_recent_pledges]
+        send(sender, {:response, id})
+        listen_loop(new_state)
+
+      {sender, :recent_pledges} ->
+        send(sender, {:response, state})
+        listen_loop(state)
+
+      {sender, :total_pledged} ->
+        total = Enum.map(state, &elem(&1, 1)) |> Enum.sum()
+
+        send(sender, {:response, total})
+        listen_loop(state)
+
+      unexpected ->
+        IO.puts("Unexpected message #{inspect(unexpected)}")
+        listen_loop(state)
+    end
+  end
+
   defp send_pledge_to_service(_name, _amount) do
     {:ok, "pledge-#{:rand.uniform(1000)}"}
   end
@@ -45,7 +67,9 @@ end
 
 # alias Servy.PledgeServer
 
-# PledgeServer.start()
+# pid = PledgeServer.start()
+
+# send(pid, {:stop, "test"})
 
 # IO.inspect(PledgeServer.create_pledge("test1", 10))
 # IO.inspect(PledgeServer.create_pledge("test2", 20))
@@ -53,6 +77,8 @@ end
 # IO.inspect(PledgeServer.create_pledge("test4", 40))
 # IO.inspect(PledgeServer.create_pledge("test5", 50))
 
-# pledges = PledgeServer.recent_pledges()
+# IO.inspect(PledgeServer.recent_pledges())
 
-# IO.inspect(pledges)
+# IO.inspect(PledgeServer.total_pledged())
+
+# IO.inspect(Process.info(pid, :messages))
