@@ -87,26 +87,26 @@ defmodule Servy.PledgeServer do
   end
 end
 
-alias Servy.PledgeServer
+# alias Servy.PledgeServer
 
-pid = PledgeServer.start()
+# pid = PledgeServer.start()
 
-send(pid, {:test, "no message like that"})
+# send(pid, {:test, "no message like that"})
 
-IO.inspect(PledgeServer.create_pledge("test1", 10))
-IO.inspect(PledgeServer.create_pledge("test2", 20))
-IO.inspect(PledgeServer.create_pledge("test3", 30))
-IO.inspect(PledgeServer.create_pledge("test4", 40))
+# IO.inspect(PledgeServer.create_pledge("test1", 10))
+# IO.inspect(PledgeServer.create_pledge("test2", 20))
+# IO.inspect(PledgeServer.create_pledge("test3", 30))
+# IO.inspect(PledgeServer.create_pledge("test4", 40))
 
-PledgeServer.clear()
+# PledgeServer.clear()
 
-IO.inspect(PledgeServer.create_pledge("test5", 50))
+# IO.inspect(PledgeServer.create_pledge("test5", 50))
 
-IO.inspect(PledgeServer.recent_pledges())
+# IO.inspect(PledgeServer.recent_pledges())
 
-IO.inspect(PledgeServer.total_pledged())
+# IO.inspect(PledgeServer.total_pledged())
 
-IO.inspect(Process.info(pid, :messages))
+# IO.inspect(Process.info(pid, :messages))
 
 # {:ok, agent} = Agent.start(fn -> [] end)
 # Agent.update(agent, fn(state) -> [ {"larry", 10} | state ] end)
