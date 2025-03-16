@@ -43,7 +43,9 @@ defmodule Servy.PledgeServer do
   end
 
   def handle_cast({:set_cache_size, size}, state) do
-    {:noreply, %{state | cache_size: size}}
+    pledges = Enum.take(state.pledges, size)
+    state = %{state | pledges: pledges, cache_size: size}
+    {:noreply, state}
   end
 
   def handle_call({:create_pledge, name, amount}, _from, state) do
@@ -90,7 +92,9 @@ end
 # IO.inspect(PledgeServer.create_pledge("test4", 40))
 # IO.inspect(PledgeServer.create_pledge("test5", 50))
 
-# # PledgeServer.clear()
+# PledgeServer.set_cache_size(2)
+
+# PledgeServer.clear()
 
 # IO.inspect(PledgeServer.recent_pledges())
 
