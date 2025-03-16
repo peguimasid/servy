@@ -1,45 +1,49 @@
 defmodule Servy.FourOhFourCounter do
   @name :four_oh_four_counter_server
 
-  alias Servy.GenericServer
+  use GenServer
 
   def start() do
-    GenericServer.start(__MODULE__, %{}, @name)
+    GenServer.start(__MODULE__, %{}, name: @name)
   end
 
   def bump_count(route) do
-    GenericServer.call(@name, {:bump, route})
+    GenServer.call(@name, {:bump, route})
   end
 
   def get_count(route) do
-    GenericServer.call(@name, {:get, route})
+    GenServer.call(@name, {:get, route})
   end
 
   def get_counts() do
-    GenericServer.call(@name, :list)
+    GenServer.call(@name, :list)
   end
 
   def reset() do
-    GenericServer.cast(@name, :reset)
+    GenServer.cast(@name, :reset)
   end
 
-  def handle_call({:bump, route}, state) do
+  def init(init_arg) do
+    {:ok, init_arg}
+  end
+
+  def handle_call({:bump, route}, _from, state) do
     current_value = Map.get(state, route, 0)
     new_state = Map.put(state, route, current_value + 1)
-    {:ok, new_state}
+    {:reply, :ok, new_state}
   end
 
-  def handle_call({:get, route}, state) do
+  def handle_call({:get, route}, _from, state) do
     amount = Map.get(state, route, 0)
-    {amount, state}
+    {:reply, amount, state}
   end
 
-  def handle_call(:list, state) do
-    {state, state}
+  def handle_call(:list, _from, state) do
+    {:reply, state, state}
   end
 
   def handle_cast(:reset, _state) do
-    %{}
+    {:noreply, %{}}
   end
 
   def handle_info(message, state) do
