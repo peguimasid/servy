@@ -1,83 +1,44 @@
 defmodule Servy.FourOhFourCounter do
-  @name __MODULE__
+  @name :four_oh_four_counter_server
 
-  # Client interface functions
+  alias Servy.GenericServer
 
   def start() do
-    pid = spawn(__MODULE__, :listen_loop, [%{}])
-    Process.register(pid, @name)
-    pid
+    GenericServer.start(__MODULE__, %{}, @name)
   end
 
   def bump_count(route) do
-    send(@name, {self(), :bump, route})
-
-    receive do
-      {:response, status} -> status
-    end
+    GenericServer.call(@name, {:bump, route})
   end
 
   def get_count(route) do
-    send(@name, {self(), :get, route})
-
-    receive do
-      {:response, amount} -> amount
-    end
+    GenericServer.call(@name, {:get, route})
   end
 
   def get_counts() do
-    send(@name, {self(), :list})
-
-    receive do
-      {:response, values} -> values
-    end
+    GenericServer.call(@name, :list)
   end
 
-  # Server
+  def reset() do
+    GenericServer.cast(@name, :reset)
+  end
 
-  def listen_loop(state) do
-    receive do
-      {sender, :bump, route} ->
-        current_value = Map.get(state, route, 0)
-        new_state = Map.put(state, route, current_value + 1)
-        send(sender, {:response, :ok})
-        listen_loop(new_state)
+  def handle_call({:bump, route}, state) do
+    current_value = Map.get(state, route, 0)
+    new_state = Map.put(state, route, current_value + 1)
+    {:ok, new_state}
+  end
 
-      {sender, :get, route} ->
-        amount = Map.get(state, route)
-        send(sender, {:response, amount})
-        listen_loop(state)
+  def handle_call({:get, route}, state) do
+    amount = Map.get(state, route, 0)
+    {amount, state}
+  end
 
-      {sender, :list} ->
-        send(sender, {:response, state})
-        listen_loop(state)
+  def handle_call(:list, state) do
+    {state, state}
+  end
 
-      unexpected ->
-        IO.puts("Unexpected message #{inspect(unexpected)}")
-        listen_loop(state)
-    end
+  def handle_cast(:reset, _state) do
+    %{}
   end
 end
-
-# alias Servy.PledgeServer
-
-# pid = PledgeServer.start()
-
-# send(pid, {:stop, "test"})
-
-# IO.inspect(PledgeServer.create_pledge("test1", 10))
-# IO.inspect(PledgeServer.create_pledge("test2", 20))
-# IO.inspect(PledgeServer.create_pledge("test3", 30))
-# IO.inspect(PledgeServer.create_pledge("test4", 40))
-# IO.inspect(PledgeServer.create_pledge("test5", 50))
-
-# IO.inspect(PledgeServer.recent_pledges())
-
-# IO.inspect(PledgeServer.total_pledged())
-
-# IO.inspect(Process.info(pid, :messages))
-
-# {:ok, agent} = Agent.start(fn -> [] end)
-# Agent.update(agent, fn(state) -> [ {"larry", 10} | state ] end)
-# Agent.update(agent, fn(state) -> [ {"moe", 20} | state ] end)
-# Agent.get(agent, fn(state) -> state end)
