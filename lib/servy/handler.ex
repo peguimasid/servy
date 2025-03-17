@@ -7,9 +7,8 @@ defmodule Servy.Handler do
   import Servy.Conv, only: [put_content_length: 1]
   import Servy.View, only: [render: 3]
 
+  alias Servy.SensorServer
   alias Servy.FourOhFourCounter
-  alias Servy.Tracker
-  alias Servy.VideoCam
   alias Servy.Api
   alias Servy.Conv
   alias Servy.Controllers.PledgeController
@@ -35,15 +34,7 @@ defmodule Servy.Handler do
   end
 
   def route(%Conv{method: "GET", path: "/sensors"} = conv) do
-    task = Task.async(Tracker, :get_location, ["bigfoot"])
-
-    snapshots =
-      ["cam-1", "cam-2", "cam-3"]
-      |> Enum.map(&Task.async(VideoCam, :get_snapshot, [&1]))
-      |> Enum.map(&Task.await/1)
-
-    where_is_bigfoot = Task.await(task)
-
+    %{snapshots: snapshots, location: where_is_bigfoot} = SensorServer.get_sensor_data()
     render(conv, "sensors.eex", snapshots: snapshots, location: where_is_bigfoot)
   end
 
