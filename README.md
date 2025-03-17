@@ -11,4 +11,7 @@ Servy.PledgeServer.start()
 :observer.start
 Process.info(pid, :messages)
 Process.info(pid, :message_queue_len)
+pid = Process.whereis(:http_server)
+Process.exit(pid, :some_reason)
+Process.alive?(pid)
 ```
