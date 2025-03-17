@@ -1,7 +1,9 @@
 defmodule Servy.SensorServer do
   alias Servy.Tracker
   alias Servy.VideoCam
+
   @name :sensor_server
+  @refresh_interval :timer.seconds(5)
 
   use GenServer
 
@@ -19,7 +21,19 @@ defmodule Servy.SensorServer do
 
   def init(_state) do
     initial_state = run_tasks_to_get_sensor_data()
+    schedule_refresh()
     {:ok, initial_state}
+  end
+
+  def handle_info(:refresh, _state) do
+    state = run_tasks_to_get_sensor_data()
+    schedule_refresh()
+    IO.puts("Cache refreshed...")
+    {:noreply, state}
+  end
+
+  defp schedule_refresh do
+    Process.send_after(self(), :refresh, @refresh_interval)
   end
 
   def handle_call(:get_sensor_data, _from, state) do
