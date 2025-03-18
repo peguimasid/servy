@@ -15,4 +15,6 @@ pid = Process.whereis(:http_server)
 Process.exit(pid, :some_reason)
 Process.alive?(pid)
 Servy.Supervisor.start_link
+Application.started_applications
+mix run --no-halt
 ```
