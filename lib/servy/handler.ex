@@ -34,7 +34,11 @@ defmodule Servy.Handler do
   end
 
   def route(%Conv{method: "GET", path: "/sensors"} = conv) do
-    %{snapshots: snapshots, location: where_is_bigfoot} = SensorServer.get_sensor_data()
+    IO.inspect(SensorServer.get_sensor_data())
+    %SensorServer.State{sensor_data: sensor_data} = SensorServer.get_sensor_data()
+
+    %{snapshots: snapshots, location: where_is_bigfoot} = sensor_data
+
     render(conv, "sensors.eex", snapshots: snapshots, location: where_is_bigfoot)
   end
 
