@@ -14,4 +14,5 @@ Process.info(pid, :message_queue_len)
 pid = Process.whereis(:http_server)
 Process.exit(pid, :some_reason)
 Process.alive?(pid)
+Servy.Supervisor.start_link
 ```
